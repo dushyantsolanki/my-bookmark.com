@@ -29,7 +29,7 @@ const SAMPLE_URLS = [
 async function seed() {
   try {
     console.log("Connecting to MongoDB...");
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(MONGODB_URI!);
     console.log("Connected.");
 
     // 1. Clear existing data for this user
