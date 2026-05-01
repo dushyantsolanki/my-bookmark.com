@@ -45,7 +45,7 @@ export function LoginForm({
         const { accessToken, user } = response.data
 
         // Store access token in cookie
-        Cookies.set("accessToken", accessToken, { expires: 1/24 }) // 1 hour
+        Cookies.set("accessToken", accessToken, { expires: 1 / 24 }) // 1 hour
         localStorage.setItem("user", JSON.stringify(user))
 
         router.push("/")
@@ -120,8 +120,8 @@ export function LoginForm({
                 )}
               </Field>
               <Field className="pt-2">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={formik.isSubmitting}
                   className="h-11 text-base font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
@@ -152,7 +152,7 @@ export function LoginForm({
           </form>
           <div className="relative hidden bg-zinc-950 md:block">
             <img
-              src="/login-illustration.png"
+              src="https://picsum.photos/seed/robust-paradigm-mastering-framer-motion-for-premium-animations-1-gcelm/800/630"
               alt="Login Illustration"
               className="absolute inset-0 h-full w-full object-cover opacity-80"
             />
