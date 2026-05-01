@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/mongodb";
 import User from "@/lib/models/User";
-import { generateAccessToken, generateRefreshToken } from "@/lib/jwt";
+import { generateAccessToken } from "@/lib/jwt";
 
 export async function POST(req: Request) {
   try {
@@ -38,7 +38,6 @@ export async function POST(req: Request) {
 
     // Generate tokens
     const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
 
     const response = NextResponse.json(
       {
@@ -53,13 +52,6 @@ export async function POST(req: Request) {
       { status: 201 }
     );
 
-    // Set Refresh Token in HTTP-only cookie
-    response.cookies.set("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    });
 
     return response;
   } catch (error: any) {

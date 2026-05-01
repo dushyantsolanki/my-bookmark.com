@@ -17,7 +17,7 @@ import { BookmarkListSkeleton } from "./bookmark-skeleton";
 
 function ArchivedBookmarkCard({ bookmark }: { bookmark: Bookmark }) {
   const { tags: allTags, updateBookmark, fetchBookmarks } = useBookmarksStore();
-  const bookmarkTags = allTags.filter((tag) => bookmark.tags.includes(tag._id));
+  const bookmarkTags = allTags.filter((tag) => bookmark.tags?.includes(tag._id));
   const bookmarkId = (bookmark._id || bookmark.id) as string;
 
   const handleUnarchive = async () => {

@@ -293,7 +293,7 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
 
     if (state.selectedTags.length > 0) {
       filtered = filtered.filter((b) =>
-        state.selectedTags.some((tag) => b.tags.includes(tag))
+        state.selectedTags.some((tag) => b.tags?.includes(tag))
       );
     }
 

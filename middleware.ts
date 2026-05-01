@@ -5,9 +5,8 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Frontend Route Protection
-  const refreshToken = request.cookies.get("refreshToken")?.value;
   const accessToken = request.cookies.get("accessToken")?.value;
-  const isAuthenticated = !!refreshToken || !!accessToken;
+  const isAuthenticated = !!accessToken;
 
   const isAuthRoute = pathname === "/login" || pathname === "/register";
 

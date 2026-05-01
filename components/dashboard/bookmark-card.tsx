@@ -40,7 +40,7 @@ export function BookmarkCard({
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
 
   // Find tags associated with this bookmark
-  const bookmarkTags = allTags.filter((tag) => bookmark.tags.includes(tag._id));
+  const bookmarkTags = allTags.filter((tag) => bookmark.tags?.includes(tag._id));
 
   const bookmarkId = (bookmark._id || bookmark.id) as string;
 

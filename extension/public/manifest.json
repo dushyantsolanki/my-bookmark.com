@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "MyBookmark Extension",
+  "version": "1.0.0",
+  "description": "Quickly add bookmarks to your MyBookmark dashboard.",
+  "permissions": [
+    "activeTab",
+    "cookies",
+    "sidePanel",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://my-bookmark-com.vercel.app/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open MyBookmark"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "icons": {
+    "16": "favicon_io/favicon-16x16.png",
+    "32": "favicon_io/favicon-32x32.png",
+    "192": "favicon_io/android-chrome-192x192.png",
+    "512": "favicon_io/android-chrome-512x512.png"
+  }
+}

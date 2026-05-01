@@ -110,10 +110,10 @@ export function BookmarksSidebar({
       <Sidebar collapsible="offcanvas" className="lg:border-r-0!" {...props}>
         <SidebarHeader className="p-5 pb-0">
           <div className="flex items-center gap-2 px-1">
-            <div className="size-7 rounded-lg bg-primary flex items-center justify-center">
-              <Bookmark className="size-4 text-primary-foreground" />
+            <div className="size-7 rounded-lg overflow-hidden shadow-sm">
+              <img src="/logo.png" alt="MyBookmark Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="font-bold text-lg tracking-tight">Bookmarks</span>
+            <span className="font-bold text-lg tracking-tight">MyBookmark</span>
           </div>
         </SidebarHeader>
 

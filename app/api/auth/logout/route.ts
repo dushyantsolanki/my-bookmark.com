@@ -7,13 +7,6 @@ export async function POST() {
       { status: 200 }
     );
 
-    // Clear the refresh token cookie
-    response.cookies.set("refreshToken", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      path: "/",
-    });
-
     // Clear the access token cookie
     response.cookies.set("accessToken", "", {
       expires: new Date(0),

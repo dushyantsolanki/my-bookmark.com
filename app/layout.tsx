@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import NextTopLoader from "nextjs-toploader";
+
 import "./globals.css";
 
-const geistSans = Geist({
+const poppins = Poppins({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-sans",
   subsets: ["latin"],
 });
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bookmarks - Square UI",
-  description: "A beautiful bookmark manager template by Square UI",
+  title: "MyBookmark - Save & Organize",
+  description: "A beautiful, fast, and simple bookmark manager.",
 };
 
 export default function RootLayout({
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
+        className={`${poppins.variable} ${geistMono.variable} antialiased font-sans`}
       >
         <ThemeProvider
           attribute="class"

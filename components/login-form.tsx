@@ -45,7 +45,7 @@ export function LoginForm({
         const { accessToken, user } = response.data
 
         // Store access token in cookie
-        Cookies.set("accessToken", accessToken, { expires: 1 / 24 }) // 1 hour
+        Cookies.set("accessToken", accessToken, { expires: 365 }) // Permanent (1 year)
         localStorage.setItem("user", JSON.stringify(user))
 
         router.push("/")
