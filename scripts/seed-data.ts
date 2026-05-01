@@ -3,7 +3,7 @@ import Collection from "../lib/models/Collection";
 import Tag from "../lib/models/Tag";
 import Bookmark from "../lib/models/Bookmark";
 
-const MONGODB_URI = "mongodb+srv://dushyant:dushyant@cluster0.1j6zanr.mongodb.net/mybookmark";
+const MONGODB_URI = process.env.MONGODB_URI;
 const USER_ID = "69f45ee4e50571547681571a";
 
 const SAMPLE_COLLECTIONS = [
