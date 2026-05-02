@@ -129,6 +129,7 @@ export function BookmarkCard({
                         "bg-[var(--tag-bg)] text-[var(--tag-text)] border-[var(--tag-border)] dark:bg-[var(--tag-bg-dark)] dark:text-[var(--tag-text-dark)]"
                       )}
                     >
+                      <Tag className="size-2.5 mr-1 shrink-0 opacity-70" />
                       {tag.name}
                     </span>
                   );
@@ -302,6 +303,7 @@ export function BookmarkCard({
                       "bg-[var(--tag-bg)] text-[var(--tag-text)] border-[var(--tag-border)] dark:bg-[var(--tag-bg-dark)] dark:text-[var(--tag-text-dark)]"
                     )}
                   >
+                    <Tag className="size-2.5 mr-1 shrink-0 opacity-70" />
                     {tag.name}
                   </span>
                 );

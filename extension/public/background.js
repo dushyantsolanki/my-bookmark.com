@@ -1,9 +1,7 @@
-// Open side panel on icon click
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
-// Send active tab info to the side panel whenever tab changes
 function sendTabInfo(tabId) {
   chrome.tabs.get(tabId, (tab) => {
     if (chrome.runtime.lastError || !tab) return;

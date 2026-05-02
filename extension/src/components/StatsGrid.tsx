@@ -1,8 +1,9 @@
 /**
  * StatsGrid — 2×2 dashboard grid showing user bookmark stats.
+ * Removed charting library for performance and bundle size.
  */
 
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Bookmark, Heart, Folder, Tag, Loader2 } from 'lucide-react';
 import type { Stats } from '../types';
 
 interface StatsGridProps {
@@ -13,55 +14,44 @@ interface StatsGridProps {
 export function StatsGrid({ stats, loading }: StatsGridProps) {
   if (loading || !stats) {
     return (
-      <div className="h-32 bg-muted rounded-xl border flex items-center justify-center text-xs font-bold text-muted-foreground uppercase tracking-widest">
-        Loading Stats...
+      <div className="h-32 bg-[#f7f9f9] rounded-xl border border-[#eff3f4] flex items-center justify-center text-xs font-bold text-[#536471] uppercase tracking-widest">
+        <Loader2 className="animate-spin text-primary" size={24} />
       </div>
     );
   }
 
-  const data = [
-    { name: 'Bookmarks', value: stats.totalBookmarks, fill: '#1d9bf0' },
-    { name: 'Favorites', value: stats.favorites, fill: '#ef4444' },
-    { name: 'Collections', value: stats.collections, fill: '#f59e0b' },
-    { name: 'Tags', value: stats.tags, fill: '#22c55e' },
+  const items = [
+    { label: 'Bookmarks', value: stats.totalBookmarks, icon: Bookmark, color: '#1d9bf0', bg: '#e8f5fd' },
+    { label: 'Favorites', value: stats.favorites, icon: Heart, color: '#f91880', bg: '#fee7f2' },
+    { label: 'Collections', value: stats.collections, icon: Folder, color: '#ffd400', bg: '#fff9e1' },
+    { label: 'Tags', value: stats.tags, icon: Tag, color: '#00ba7c', bg: '#e6f8f2' },
   ];
 
   return (
-    <div className="bg-white border rounded-xl  p-4 animate-fade-in relative z-10">
-      <h3 className="text-xs font-semibold text-muted-foreground capitalize tracking-widest mb-4 px-1">
-        Your Activity
-      </h3>
-      <div className="h-32 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-            <XAxis
-              dataKey="name"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 10, fontWeight: 700, fill: '#536471' }}
-              dy={5}
-            />
-            <Tooltip
-              cursor={{ fill: 'transparent' }}
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="bg-[#0f1419] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-xl">
-                      {payload[0].payload.name}: <span className="text-primary">{payload[0].value}</span>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Bar dataKey="value" radius={[4, 4, 4, 4]} barSize={32}>
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+
+    <div className="grid grid-cols-2 gap-3">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-[#eff3f4]"
+        >
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+            style={{ backgroundColor: item.bg }}
+          >
+            <item.icon size={18} style={{ color: item.color }} />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[15px] font-semibold  text-[#0f1419] leading-tight">
+              {item.value.toLocaleString()}
+            </span>
+            <span className="text-[11px] text-[#536471] truncate">
+              {item.label}
+            </span>
+          </div>
+        </div>
+      ))}
     </div>
+
   );
 }

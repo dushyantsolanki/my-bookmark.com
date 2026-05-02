@@ -1,7 +1,3 @@
-/**
- * Shared TypeScript interfaces for the MyBookmark extension.
- */
-
 export interface User {
   id: string;
   name: string;
@@ -30,3 +26,17 @@ export interface FormErrors {
   title?: string;
   url?: string;
 }
+
+export interface Collection {
+  _id: string;
+  name: string;
+  icon?: string;
+  color?: string;
+}
+
+export interface Tag {
+  _id: string;
+  name: string;
+  color?: string;
+}
+

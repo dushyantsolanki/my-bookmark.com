@@ -202,6 +202,7 @@ const EditBookmarkModal = ({ isOpen, onClose, bookmark }: EditBookmarkModalProps
                         formik.setFieldValue("tags", newTags);
                       }}
                     >
+                      <TagIcon className="size-3 shrink-0" />
                       {tag.name}
                       {isSelected && <Check className="size-3" />}
                     </Badge>

@@ -1,7 +1,3 @@
-/**
- * Footer — bottom bar with refresh hint and branding.
- */
-
 import { RefreshCw } from 'lucide-react';
 
 export function Footer() {

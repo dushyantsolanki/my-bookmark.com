@@ -1,11 +1,5 @@
-/**
- * Thin wrapper around the Chrome extension APIs.
- * Isolates all chrome.* calls so the rest of the app stays testable.
- */
-
 import { API_BASE_URL, COOKIE_NAME } from './constants';
 
-/** Get the access token cookie from the dashboard domain */
 export function getAccessToken(): Promise<string | null> {
   return new Promise((resolve) => {
     if (typeof chrome === 'undefined' || !chrome.cookies) {
@@ -18,7 +12,6 @@ export function getAccessToken(): Promise<string | null> {
   });
 }
 
-/** Query the currently active browser tab */
 export function getActiveTab(): Promise<chrome.tabs.Tab | null> {
   return new Promise((resolve) => {
     if (typeof chrome === 'undefined' || !chrome.tabs) {
@@ -35,7 +28,6 @@ export function getActiveTab(): Promise<chrome.tabs.Tab | null> {
   });
 }
 
-/** Open a URL in a new browser tab */
 export function openTab(url: string): void {
   if (typeof chrome !== 'undefined' && chrome.tabs) {
     chrome.tabs.create({ url });

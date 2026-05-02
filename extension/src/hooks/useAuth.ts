@@ -1,11 +1,3 @@
-/**
- * useAuth — manages authentication state with periodic polling.
- *
- * Checks the accessToken cookie every AUTH_POLL_INTERVAL ms.
- * Automatically detects login/logout from the dashboard and
- * updates state without requiring a manual refresh.
- */
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AUTH_POLL_INTERVAL } from '../lib/constants';
 import { getAccessToken } from '../lib/chrome';

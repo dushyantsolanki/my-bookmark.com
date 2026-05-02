@@ -1,7 +1,3 @@
-/**
- * Header — sticky top bar with logo, refresh button, and user avatar.
- */
-
 import { RefreshCw } from 'lucide-react';
 import { openTab } from '../lib/chrome';
 import { API_BASE_URL } from '../lib/constants';

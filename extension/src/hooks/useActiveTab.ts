@@ -1,10 +1,3 @@
-/**
- * useActiveTab — polls the browser's active tab every TAB_POLL_INTERVAL ms.
- *
- * Returns the current tab's url, title, and favicon.
- * Only updates state when the URL actually changes (avoids unnecessary renders).
- */
-
 import { useState, useEffect, useRef } from 'react';
 import { TAB_POLL_INTERVAL } from '../lib/constants';
 import { getActiveTab } from '../lib/chrome';
@@ -31,6 +24,5 @@ export function useActiveTab(): TabInfo {
     const interval = setInterval(poll, TAB_POLL_INTERVAL);
     return () => clearInterval(interval);
   }, []);
-
   return tab;
 }
