@@ -1,10 +1,10 @@
 import { ENDPOINTS } from './constants';
 import type { User, Stats } from '../types';
 
-export async function fetchCurrentUser(token: string): Promise<User | null> {
+export async function fetchCurrentUser(): Promise<User | null> {
   try {
     const res = await fetch(ENDPOINTS.AUTH_ME, {
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     });
     if (res.ok) return res.json();
     return null;
@@ -13,10 +13,10 @@ export async function fetchCurrentUser(token: string): Promise<User | null> {
   }
 }
 
-export async function fetchUserStats(userId: string, token: string): Promise<Stats | null> {
+export async function fetchUserStats(): Promise<Stats | null> {
   try {
-    const res = await fetch(`${ENDPOINTS.BOOKMARKS_STATS}?userId=${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await fetch(ENDPOINTS.BOOKMARKS_STATS, {
+      credentials: 'include',
     });
     if (res.ok) return res.json();
     return null;
@@ -26,17 +26,16 @@ export async function fetchUserStats(userId: string, token: string): Promise<Sta
 }
 
 export async function addBookmark(
-  payload: { url: string; title: string; userId: string; collectionId?: string; tags?: string[] },
-  token: string,
+  payload: { url: string; title: string; collectionId?: string; tags?: string[] },
 ): Promise<boolean> {
   try {
     const res = await fetch(ENDPOINTS.BOOKMARKS_ADD, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
+      credentials: 'include',
     });
     return res.ok;
   } catch {
@@ -44,10 +43,10 @@ export async function addBookmark(
   }
 }
 
-export async function fetchCollections(userId: string, token: string): Promise<any[]> {
+export async function fetchCollections(): Promise<any[]> {
   try {
-    const res = await fetch(`${ENDPOINTS.COLLECTIONS}?userId=${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await fetch(ENDPOINTS.COLLECTIONS, {
+      credentials: 'include',
     });
     if (res.ok) return res.json();
     return [];
@@ -57,17 +56,16 @@ export async function fetchCollections(userId: string, token: string): Promise<a
 }
 
 export async function createCollection(
-  payload: { name: string; userId: string; icon?: string; color?: string },
-  token: string,
+  payload: { name: string; icon?: string; color?: string },
 ): Promise<any | null> {
   try {
     const res = await fetch(ENDPOINTS.COLLECTIONS, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
+      credentials: 'include',
     });
     if (res.ok) return res.json();
     return null;
@@ -76,10 +74,10 @@ export async function createCollection(
   }
 }
 
-export async function fetchTags(userId: string, token: string): Promise<any[]> {
+export async function fetchTags(): Promise<any[]> {
   try {
-    const res = await fetch(`${ENDPOINTS.TAGS}?userId=${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await fetch(ENDPOINTS.TAGS, {
+      credentials: 'include',
     });
     if (res.ok) return res.json();
     return [];
@@ -89,17 +87,16 @@ export async function fetchTags(userId: string, token: string): Promise<any[]> {
 }
 
 export async function createTag(
-  payload: { name: string; userId: string; color?: string },
-  token: string,
+  payload: { name: string; color?: string },
 ): Promise<any | null> {
   try {
     const res = await fetch(ENDPOINTS.TAGS, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
+      credentials: 'include',
     });
     if (res.ok) return res.json();
     return null;
@@ -107,4 +104,3 @@ export async function createTag(
     return null;
   }
 }
-

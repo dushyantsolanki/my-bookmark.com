@@ -97,7 +97,6 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
   fetchBookmarks: async (params = {}, options = { silent: false }) => {
     if (!options.silent) set({ isLoading: true });
     try {
-      const userId = get().user?.id || get().user?._id;
       const { isTrashed, isArchived, isFavorite } = params;
 
       // Save params for silent refreshes
@@ -314,7 +313,6 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
     // Also clear client-side accessible cookies just in case
     import("js-cookie").then((Cookies) => {
       Cookies.default.remove("accessToken");
-      Cookies.default.remove("refreshToken");
     });
 
     window.location.href = "/login";
@@ -342,12 +340,12 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
       filtered = filtered.filter(
         (b) => {
           if (!b) return false;
-          
+
           // Check title, description, url
           const matchesText = b.title?.toLowerCase()?.includes(query) ||
-                             b.description?.toLowerCase()?.includes(query) ||
-                             b.url?.toLowerCase()?.includes(query);
-          
+            b.description?.toLowerCase()?.includes(query) ||
+            b.url?.toLowerCase()?.includes(query);
+
           if (matchesText) return true;
 
           // Check tag names

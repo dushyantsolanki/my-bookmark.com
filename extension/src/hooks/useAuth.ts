@@ -18,8 +18,8 @@ export function useAuth(): AuthState {
   const [loading, setLoading] = useState(true);
   const tokenRef = useRef('');
 
-  const loadStats = useCallback(async (userId: string, token: string) => {
-    const data = await fetchUserStats(userId, token);
+  const loadStats = useCallback(async () => {
+    const data = await fetchUserStats();
     if (data) setStats(data);
   }, []);
 
@@ -28,11 +28,11 @@ export function useAuth(): AuthState {
 
     if (token) {
       tokenRef.current = token;
-      const userData = await fetchCurrentUser(token);
+      const userData = await fetchCurrentUser();
 
       if (userData) {
         setUser(userData);
-        loadStats(userData.id, token);
+        loadStats();
       } else {
         setUser(null);
         setStats(null);
@@ -52,8 +52,8 @@ export function useAuth(): AuthState {
   }, [checkAuth]);
 
   const refreshStats = useCallback(() => {
-    if (user && tokenRef.current) {
-      loadStats(user.id, tokenRef.current);
+    if (user) {
+      loadStats();
     }
   }, [user, loadStats]);
 

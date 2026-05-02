@@ -5,7 +5,6 @@ import {
   Tags, FolderOpen, Link,
 } from 'lucide-react';
 import { BookmarkSchema } from '../lib/validation';
-import { getAccessToken } from '../lib/chrome';
 import { addBookmark, fetchCollections, createCollection, fetchTags, createTag } from '../lib/api';
 import { openTab } from '../lib/chrome';
 import { API_BASE_URL } from '../lib/constants';
@@ -20,7 +19,7 @@ interface BookmarkFormProps {
   onStatusChange: (status: StatusMessage | null) => void;
 }
 
-export function BookmarkForm({ user, tab, onSaved, status, onStatusChange }: BookmarkFormProps) {
+export function BookmarkForm({ tab, onSaved, status, onStatusChange }: BookmarkFormProps) {
   const [title, setTitle] = useState(tab.title);
   const [url, setUrl] = useState(tab.url);
   const [saving, setSaving] = useState(false);
@@ -41,12 +40,9 @@ export function BookmarkForm({ user, tab, onSaved, status, onStatusChange }: Boo
 
   useEffect(() => {
     const loadData = async () => {
-      const token = await getAccessToken();
-      if (!token) return;
-
       const [cols, tgList] = await Promise.all([
-        fetchCollections(user.id, token),
-        fetchTags(user.id, token)
+        fetchCollections(),
+        fetchTags()
       ]);
 
       setCollections(cols);
@@ -55,7 +51,7 @@ export function BookmarkForm({ user, tab, onSaved, status, onStatusChange }: Boo
     };
 
     loadData();
-  }, [user.id]);
+  }, []);
 
   // Sync form fields when the active tab changes
   useEffect(() => {
@@ -72,10 +68,8 @@ export function BookmarkForm({ user, tab, onSaved, status, onStatusChange }: Boo
 
   const handleCreateCollection = async () => {
     if (!newCollectionName.trim()) return;
-    const token = await getAccessToken();
-    if (!token) return;
 
-    const newCol = await createCollection({ name: newCollectionName, userId: user.id }, token);
+    const newCol = await createCollection({ name: newCollectionName });
     if (newCol) {
       setCollections([...collections, newCol]);
       setSelectedCollection(newCol._id);
@@ -86,10 +80,8 @@ export function BookmarkForm({ user, tab, onSaved, status, onStatusChange }: Boo
 
   const handleCreateTag = async () => {
     if (!newTagName.trim()) return;
-    const token = await getAccessToken();
-    if (!token) return;
 
-    const newT = await createTag({ name: newTagName, userId: user.id }, token);
+    const newT = await createTag({ name: newTagName });
     if (newT) {
       setTags([...tags, newT]);
       setSelectedTags([...selectedTags, newT._id]);
@@ -115,20 +107,12 @@ export function BookmarkForm({ user, tab, onSaved, status, onStatusChange }: Boo
     setSaving(true);
     onStatusChange(null);
 
-    const token = await getAccessToken();
-    if (!token) {
-      onStatusChange({ type: 'error', message: 'Session expired. Please login again.' });
-      setSaving(false);
-      return;
-    }
-
     const success = await addBookmark({
       url,
       title,
-      userId: user.id,
       collectionId: selectedCollection || undefined,
       tags: selectedTags.length > 0 ? selectedTags : undefined
-    }, token);
+    });
 
     if (success) {
       onStatusChange({ type: 'success', message: 'Bookmark saved!' });
