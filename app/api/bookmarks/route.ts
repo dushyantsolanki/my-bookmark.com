@@ -7,7 +7,10 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
+    
+    // Get verified userId from middleware headers
+    const userId = req.headers.get("x-user-id") || searchParams.get("userId");
+    
     const collectionId = searchParams.get("collectionId");
     const status = searchParams.get("status");
     const isFavorite = searchParams.get("isFavorite");
@@ -16,7 +19,7 @@ export async function GET(req: Request) {
     const q = searchParams.get("q");
 
     if (!userId) {
-      return NextResponse.json({ error: "UserId is required" }, { status: 400 });
+      return NextResponse.json({ error: "Unauthorized: UserId missing" }, { status: 401 });
     }
 
     let query: any = { userId };
@@ -52,18 +55,23 @@ export async function GET(req: Request) {
 
     // Search logic
     if (q) {
-      // 1. Find matching tags first
+      const mongoose = require("mongoose");
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+
+      // 1. Find matching tags first for this user
       const matchingTags = await Tag.find({
-        userId,
+        userId: userObjectId,
         name: { $regex: q, $options: "i" }
       });
       const tagIds = matchingTags.map(t => t._id);
 
-      // 2. Search in title, description, or tags
+      // 2. Search in title, description, tags, or metadata
       query.$or = [
         { title: { $regex: q, $options: "i" } },
         { description: { $regex: q, $options: "i" } },
-        { tags: { $in: tagIds } }
+        { tags: { $in: tagIds } },
+        { "metadata.ogTitle": { $regex: q, $options: "i" } },
+        { "metadata.ogDescription": { $regex: q, $options: "i" } }
       ];
     }
 

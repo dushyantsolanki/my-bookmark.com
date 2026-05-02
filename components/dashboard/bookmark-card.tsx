@@ -34,8 +34,7 @@ export function BookmarkCard({
   bookmark,
   variant = "grid",
 }: BookmarkCardProps) {
-  const { tags: allTags, updateBookmark, deleteBookmark, fetchBookmarks } = useBookmarksStore();
-  const pathname = usePathname();
+  const { tags: allTags, updateBookmark, deleteBookmark } = useBookmarksStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
 
@@ -52,30 +51,16 @@ export function BookmarkCard({
     window.open(bookmark.url, "_blank");
   };
 
-  const refreshView = async () => {
-    if (pathname === "/favorites") {
-      await fetchBookmarks({ isFavorite: true });
-    } else if (pathname === "/archive") {
-      await fetchBookmarks({ isArchived: true });
-    } else if (pathname === "/trash") {
-      await fetchBookmarks({ isTrashed: true });
-    } else {
-      await fetchBookmarks();
-    }
-  };
-
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     await updateBookmark(bookmarkId, { isFavorite: !bookmark.isFavorite });
-    await refreshView();
   };
 
   const handleToggleArchive = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     await updateBookmark(bookmarkId, { isArchived: !bookmark.isArchived });
-    await refreshView();
   };
 
   const handleMoveToTrash = async (e: React.MouseEvent) => {
@@ -84,10 +69,8 @@ export function BookmarkCard({
 
     if (bookmark.isTrashed) {
       await deleteBookmark(bookmarkId);
-      await refreshView();
     } else {
       await updateBookmark(bookmarkId, { isTrashed: true });
-      await refreshView();
     }
   };
 
@@ -95,11 +78,9 @@ export function BookmarkCard({
     e.preventDefault();
     e.stopPropagation();
     await updateBookmark(bookmarkId, { isTrashed: false });
-    await refreshView();
   };
 
   if (variant === "list") {
-    console.log(bookmark)
     return (
       <div className="group flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
         <div className="size-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">

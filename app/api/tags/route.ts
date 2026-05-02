@@ -6,7 +6,11 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId") || "64f1a2b3c4d5e6f7a8b9c0d1";
+    const userId = req.headers.get("x-user-id") || searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const tags = await Tag.find({ userId });
 
@@ -18,10 +22,11 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     await dbConnect();
-    const { name, color, userId } = await req.json();
+    const { name, color } = await req.json();
+    const userId = req.headers.get("x-user-id");
 
     if (!name || !userId) {
-      return NextResponse.json({ error: "Missing name or userId" }, { status: 400 });
+      return NextResponse.json({ error: "Missing name or unauthorized" }, { status: 400 });
     }
 
     const tag = await Tag.create({ name, color, userId });

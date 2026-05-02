@@ -12,9 +12,14 @@ export async function PATCH(
     await dbConnect();
     const { id } = await params;
     const updates = await req.json();
+    const userId = req.headers.get("x-user-id");
 
-    const collection = await Collection.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(id), 
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const collection = await Collection.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(id), userId }, 
       updates, 
       {
         returnDocument: "after",
@@ -39,8 +44,16 @@ export async function DELETE(
   try {
     await dbConnect();
     const { id } = await params;
+    const userId = req.headers.get("x-user-id");
 
-    const collection = await Collection.findByIdAndDelete(new mongoose.Types.ObjectId(id));
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const collection = await Collection.findOneAndDelete({ 
+      _id: new mongoose.Types.ObjectId(id), 
+      userId 
+    });
 
     if (!collection) {
       return NextResponse.json({ error: "Collection not found" }, { status: 404 });

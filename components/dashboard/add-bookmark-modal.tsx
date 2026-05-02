@@ -65,7 +65,7 @@ const AddBookmarkModal = ({ isOpen, onClose }: AddBookmarkModalProps) => {
         });
 
         if (response.status === 201 || response.status === 200) {
-          await fetchBookmarks();
+          await fetchBookmarks({}, { silent: true });
           formik.resetForm();
           onClose();
         }

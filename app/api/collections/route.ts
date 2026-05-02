@@ -6,10 +6,10 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
+    const userId = req.headers.get("x-user-id") || searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json({ error: "UserId is required" }, { status: 400 });
+      return NextResponse.json({ error: "Unauthorized: UserId missing" }, { status: 401 });
     }
 
     const collections = await Collection.find({ userId });
@@ -22,10 +22,11 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     await dbConnect();
-    const { name, icon, color, userId } = await req.json();
+    const { name, icon, color } = await req.json();
+    const userId = req.headers.get("x-user-id");
 
     if (!name || !userId) {
-      return NextResponse.json({ error: "Name and UserId are required" }, { status: 400 });
+      return NextResponse.json({ error: "Name and Authorization are required" }, { status: 400 });
     }
 
     const collection = await Collection.create({

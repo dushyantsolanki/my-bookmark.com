@@ -28,7 +28,7 @@ export function BookmarksContent() {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
 
   useEffect(() => {
-    fetchBookmarks();
+    fetchBookmarks({}, { silent: true });
   }, [fetchBookmarks]);
 
   const filteredBookmarks = getFilteredBookmarks();

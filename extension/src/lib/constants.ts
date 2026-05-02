@@ -1,4 +1,6 @@
 export const API_BASE_URL = 'https://my-bookmark-com.vercel.app';
+// export const API_BASE_URL = "http://localhost:3000";
+
 
 export const ENDPOINTS = {
   AUTH_ME: `${API_BASE_URL}/api/auth/me`,

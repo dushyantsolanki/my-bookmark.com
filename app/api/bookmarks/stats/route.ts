@@ -11,10 +11,10 @@ export async function GET(req: Request) {
     await dbConnect();
 
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
+    const userId = req.headers.get("x-user-id") || searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json({ error: "UserId is required" }, { status: 400 });
+      return NextResponse.json({ error: "Unauthorized: UserId missing" }, { status: 401 });
     }
 
     const [totalBookmarks, favorites, collections, tags] = await Promise.all([

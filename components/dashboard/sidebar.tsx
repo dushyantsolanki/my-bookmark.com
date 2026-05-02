@@ -78,6 +78,7 @@ export function BookmarksSidebar({
     fetchTags,
     searchQuery,
     setSearchQuery,
+    setFilterType,
     isLoading,
   } = useBookmarksStore();
 
@@ -307,6 +308,7 @@ export function BookmarksSidebar({
                         onClick={() => {
                           if (item.href === "/") {
                             setSelectedCollection("all");
+                            setFilterType("all");
                             clearTags();
                           }
                         }}

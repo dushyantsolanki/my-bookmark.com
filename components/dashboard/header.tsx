@@ -81,11 +81,11 @@ export function BookmarksHeader({ title = "Bookmarks" }: BookmarksHeaderProps) {
   // Debounce search query
   React.useEffect(() => {
     if (!mounted) return;
-    
+
     const timer = setTimeout(() => {
       if (localSearch !== searchQuery) {
         setSearchQuery(localSearch);
-        fetchBookmarks();
+        fetchBookmarks({}, { silent: true });
       }
     }, 500);
 
@@ -105,7 +105,7 @@ export function BookmarksHeader({ title = "Bookmarks" }: BookmarksHeaderProps) {
             <h1 className="text-base font-semibold hidden sm:block">{title}</h1>
           </div>
           <div className="flex items-center gap-2">
-             <div className="size-8 rounded-full bg-muted animate-pulse" />
+            <div className="size-8 rounded-full bg-muted animate-pulse" />
           </div>
         </div>
       </header>
@@ -254,14 +254,14 @@ export function BookmarksHeader({ title = "Bookmarks" }: BookmarksHeaderProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.location.href = "/profile"} className="cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive cursor-pointer"

@@ -6,10 +6,11 @@ import { processBookmark } from "@/lib/scraper";
 export async function POST(req: Request) {
   try {
     await dbConnect();
-    const { url, title, description, userId, collectionId, tags, isFavorite } = await req.json();
+    const { url, title, description, collectionId, tags, isFavorite } = await req.json();
+    const userId = req.headers.get("x-user-id");
 
     if (!url || !userId) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json({ error: "Missing required fields or unauthorized" }, { status: 400 });
     }
 
     // 1. Create the initial bookmark record

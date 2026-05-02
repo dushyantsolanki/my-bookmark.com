@@ -5,29 +5,14 @@ import User from "@/lib/models/User";
 
 export async function GET(req: Request) {
   try {
-    const authHeader = req.headers.get("authorization");
-    let token = authHeader?.split(" ")[1];
+    const userId = req.headers.get("x-user-id");
 
-    if (!token) {
-      // Try to get from cookies if not in header
-      const cookieHeader = req.headers.get("cookie");
-      const cookies = Object.fromEntries(
-        cookieHeader?.split("; ").map((c) => c.split("=")) || []
-      );
-      token = cookies["accessToken"];
-    }
-
-    if (!token) {
+    if (!userId) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const decoded = verifyAccessToken(token) as any;
-    if (!decoded || !decoded.userId) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
     await dbConnect();
-    const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findById(userId).select("-password");
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });

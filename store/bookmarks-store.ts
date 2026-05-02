@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import api from "@/lib/axios";
+import { gooeyToast } from "@/components/ui/goey-toaster"
 
 export type Bookmark = {
   id: string;
@@ -48,12 +49,13 @@ interface BookmarksState {
   sortBy: SortBy;
   filterType: FilterType;
   user: any | null;
+  lastFetchParams: { isTrashed?: boolean; isArchived?: boolean; isFavorite?: boolean };
 
   // Actions
   addBookmark: (data: any) => Promise<void>;
   updateBookmark: (id: string, data: any) => Promise<void>;
   deleteBookmark: (id: string) => Promise<void>;
-  fetchBookmarks: (params?: { isTrashed?: boolean; isArchived?: boolean; isFavorite?: boolean }) => Promise<void>;
+  fetchBookmarks: (params?: { isTrashed?: boolean; isArchived?: boolean; isFavorite?: boolean }, options?: { silent?: boolean }) => Promise<void>;
   fetchCollections: () => Promise<void>;
   fetchTags: () => Promise<void>;
   createTag: (data: { name: string; color?: string }) => Promise<void>;
@@ -90,16 +92,19 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
   sortBy: "date-newest",
   filterType: "all",
   user: typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "null") : null,
+  lastFetchParams: {},
 
-  fetchBookmarks: async (params = {}) => {
-    set({ isLoading: true });
+  fetchBookmarks: async (params = {}, options = { silent: false }) => {
+    if (!options.silent) set({ isLoading: true });
     try {
       const userId = get().user?.id || get().user?._id;
       const { isTrashed, isArchived, isFavorite } = params;
 
+      // Save params for silent refreshes
+      set({ lastFetchParams: params });
+
       const response = await api.get("/bookmarks", {
         params: {
-          userId,
           isTrashed,
           isArchived,
           isFavorite,
@@ -115,36 +120,59 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
   },
 
   updateBookmark: async (id, data) => {
+    // Optimistic Update
+    const previousBookmarks = get().bookmarks;
+    set((state) => ({
+      bookmarks: state.bookmarks.map((b) =>
+        (b._id === id || b.id === id) ? { ...b, ...data } : b
+      )
+    }));
+
     try {
       await api.patch(`/bookmarks/${id}`, data);
-      await get().fetchBookmarks();
+      await get().fetchBookmarks(get().lastFetchParams, { silent: true });
+      gooeyToast.success("Bookmark updated successfully");
     } catch (error) {
       console.error("Failed to update bookmark", error);
+      gooeyToast.error("Failed to update bookmark");
+      // Rollback on error
+      set({ bookmarks: previousBookmarks });
     }
   },
 
   deleteBookmark: async (id) => {
+    // Optimistic Update
+    const previousBookmarks = get().bookmarks;
+    set((state) => ({
+      bookmarks: state.bookmarks.filter((b) => b._id !== id && b.id !== id)
+    }));
+
     try {
       await api.delete(`/bookmarks/${id}`);
-      await get().fetchBookmarks();
+      await get().fetchBookmarks(get().lastFetchParams, { silent: true });
+      gooeyToast.success("Bookmark deleted");
     } catch (error) {
       console.error("Failed to delete bookmark", error);
+      gooeyToast.error("Failed to delete bookmark");
+      // Rollback on error
+      set({ bookmarks: previousBookmarks });
     }
   },
 
   addBookmark: async (data) => {
     try {
       await api.post("/bookmarks", data);
-      await get().fetchBookmarks();
+      await get().fetchBookmarks(get().lastFetchParams, { silent: true });
+      gooeyToast.success("Bookmark added successfully");
     } catch (error) {
       console.error("Failed to add bookmark", error);
+      gooeyToast.error("Failed to add bookmark");
     }
   },
 
   fetchCollections: async () => {
-    const userId = get().user?.id || get().user?._id || "64f1a2b3c4d5e6f7a8b9c0d1";
     try {
-      const response = await api.get(`/collections?userId=${userId}`);
+      const response = await api.get("/collections");
       if (Array.isArray(response.data)) {
         set({ collections: response.data });
       } else {
@@ -157,9 +185,8 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
   },
 
   fetchTags: async () => {
-    const userId = get().user?.id || get().user?._id || "64f1a2b3c4d5e6f7a8b9c0d1";
     try {
-      const response = await api.get(`/tags?userId=${userId}`);
+      const response = await api.get("/tags");
       if (Array.isArray(response.data)) {
         set({ tags: response.data });
       } else {
@@ -172,12 +199,13 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
   },
 
   createTag: async (data) => {
-    const userId = get().user?.id || get().user?._id;
     try {
-      await api.post("/tags", { ...data, userId });
+      await api.post("/tags", data);
       await get().fetchTags();
+      gooeyToast.success("Tag created");
     } catch (error) {
       console.error("Failed to create tag", error);
+      gooeyToast.error("Failed to create tag");
     }
   },
 
@@ -185,9 +213,11 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
     try {
       await api.patch(`/tags/${id}`, data);
       await get().fetchTags();
-      await get().fetchBookmarks(); // Refresh bookmarks as they might have had this tag
+      await get().fetchBookmarks(get().lastFetchParams, { silent: true });
+      gooeyToast.success("Tag updated");
     } catch (error) {
       console.error("Failed to update tag", error);
+      gooeyToast.error("Failed to update tag");
     }
   },
 
@@ -195,19 +225,22 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
     try {
       await api.delete(`/tags/${id}`);
       await get().fetchTags();
-      await get().fetchBookmarks(); // Refresh bookmarks as they might have had this tag
+      await get().fetchBookmarks(get().lastFetchParams, { silent: true });
+      gooeyToast.success("Tag deleted");
     } catch (error) {
       console.error("Failed to delete tag", error);
+      gooeyToast.error("Failed to delete tag");
     }
   },
 
   createCollection: async (data) => {
-    const userId = get().user?.id || get().user?._id;
     try {
-      await api.post("/collections", { ...data, userId });
+      await api.post("/collections", data);
       await get().fetchCollections();
+      gooeyToast.success("Collection created");
     } catch (error) {
       console.error("Failed to create collection", error);
+      gooeyToast.error("Failed to create collection");
     }
   },
 
@@ -215,8 +248,10 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
     try {
       await api.patch(`/collections/${id}`, data);
       await get().fetchCollections();
+      gooeyToast.success("Collection updated");
     } catch (error) {
       console.error("Failed to update collection", error);
+      gooeyToast.error("Failed to update collection");
     }
   },
 
@@ -227,15 +262,17 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
         set({ selectedCollection: "all" });
       }
       await get().fetchCollections();
-      await get().fetchBookmarks(); // Refresh bookmarks as they might have changed collection
+      await get().fetchBookmarks(get().lastFetchParams, { silent: true });
+      gooeyToast.success("Collection deleted");
     } catch (error) {
       console.error("Failed to delete collection", error);
+      gooeyToast.error("Failed to delete collection");
     }
   },
 
   setSelectedCollection: (collectionId) => {
-    set({ selectedCollection: collectionId });
-    get().fetchBookmarks();
+    set({ selectedCollection: collectionId, searchQuery: "", selectedTags: [] });
+    get().fetchBookmarks({ isTrashed: false, isArchived: false }, { silent: true });
   },
 
   toggleTag: (tagId) =>
@@ -285,52 +322,69 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
 
   getFilteredBookmarks: () => {
     const state = get();
-    let filtered = [...state.bookmarks];
+    if (!Array.isArray(state.bookmarks)) return [];
+
+    // Default filter: exclude trashed and archived bookmarks from main dashboard view
+    let filtered = state.bookmarks.filter(b => b && !b.isTrashed && !b.isArchived);
 
     if (state.selectedCollection !== "all") {
-      filtered = filtered.filter((b) => b.collectionId === state.selectedCollection);
+      filtered = filtered.filter((b) => b && b.collectionId === state.selectedCollection);
     }
 
     if (state.selectedTags.length > 0) {
       filtered = filtered.filter((b) =>
-        state.selectedTags.some((tag) => b.tags?.includes(tag))
+        b && b.tags?.some((tag: string) => state.selectedTags.includes(tag))
       );
     }
 
     if (state.searchQuery) {
       const query = state.searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (b) =>
-          b.title?.toLowerCase()?.includes(query) ||
-          b.description?.toLowerCase()?.includes(query) ||
-          b.url?.toLowerCase()?.includes(query)
+        (b) => {
+          if (!b) return false;
+          
+          // Check title, description, url
+          const matchesText = b.title?.toLowerCase()?.includes(query) ||
+                             b.description?.toLowerCase()?.includes(query) ||
+                             b.url?.toLowerCase()?.includes(query);
+          
+          if (matchesText) return true;
+
+          // Check tag names
+          const matchesTags = b.tags?.some(tagId => {
+            const tag = state.tags.find(t => t._id === tagId);
+            return tag?.name?.toLowerCase()?.includes(query);
+          });
+
+          return matchesTags;
+        }
       );
     }
 
     switch (state.filterType) {
       case "favorites":
-        filtered = filtered.filter((b) => b.isFavorite);
+        filtered = filtered.filter((b) => b?.isFavorite);
         break;
       case "with-tags":
-        filtered = filtered.filter((b) => b.tags.length > 0);
+        filtered = filtered.filter((b) => (b?.tags?.length || 0) > 0);
         break;
       case "without-tags":
-        filtered = filtered.filter((b) => b.tags.length === 0);
+        filtered = filtered.filter((b) => (b?.tags?.length || 0) === 0);
         break;
     }
 
     switch (state.sortBy) {
       case "date-newest":
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        filtered.sort((a, b) => new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime());
         break;
       case "date-oldest":
-        filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        filtered.sort((a, b) => new Date(a?.createdAt || 0).getTime() - new Date(b?.createdAt || 0).getTime());
         break;
       case "alpha-az":
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        filtered.sort((a, b) => (a?.title || "").localeCompare(b?.title || ""));
         break;
       case "alpha-za":
-        filtered.sort((a, b) => b.title.localeCompare(a.title));
+        filtered.sort((a, b) => (b?.title || "").localeCompare(a?.title || ""));
         break;
     }
 

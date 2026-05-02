@@ -23,13 +23,11 @@ function ArchivedBookmarkCard({ bookmark }: { bookmark: Bookmark }) {
   const handleUnarchive = async () => {
     console.log("Unarchiving bookmark:", bookmarkId);
     await updateBookmark(bookmarkId, { isArchived: false });
-    await fetchBookmarks({ isArchived: true, isTrashed: false });
   };
 
   const handleMoveToTrash = async () => {
     console.log("Moving archived bookmark to trash:", bookmarkId);
     await updateBookmark(bookmarkId, { isTrashed: true });
-    await fetchBookmarks({ isArchived: true, isTrashed: false });
   };
 
   return (
@@ -101,11 +99,11 @@ function ArchivedBookmarkCard({ bookmark }: { bookmark: Bookmark }) {
 export function ArchiveContent() {
   const { fetchBookmarks, bookmarks, isLoading } = useBookmarksStore();
 
-  // Use bookmarks from the store directly, as we filtered them in fetchBookmarks
-  const archivedBookmarks = bookmarks;
+  // Filter bookmarks locally to prevent stale data flickering during navigation
+  const archivedBookmarks = (bookmarks || []).filter(b => b && b.isArchived && !b.isTrashed);
 
   useEffect(() => {
-    fetchBookmarks({ isArchived: true, isTrashed: false });
+    fetchBookmarks({ isArchived: true, isTrashed: false }, { silent: true });
   }, [fetchBookmarks]);
 
   if (isLoading) {

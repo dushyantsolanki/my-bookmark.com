@@ -22,13 +22,11 @@ function TrashedBookmarkCard({ bookmark }: { bookmark: Bookmark }) {
   const handleRestore = async () => {
     console.log("Restoring bookmark from trash:", bookmarkId);
     await updateBookmark(bookmarkId, { isTrashed: false });
-    await fetchBookmarks({ isTrashed: true });
   };
 
   const handleDeletePermanently = async () => {
     console.log("Deleting bookmark permanently:", bookmarkId);
     await deleteBookmark(bookmarkId);
-    await fetchBookmarks({ isTrashed: true });
   };
 
   return (
@@ -89,11 +87,11 @@ function TrashedBookmarkCard({ bookmark }: { bookmark: Bookmark }) {
 export function TrashContent() {
   const { bookmarks, fetchBookmarks, isLoading } = useBookmarksStore();
 
-  // Use bookmarks from the store directly, as we filtered them in fetchBookmarks
-  const trashedBookmarks = bookmarks;
+  // Filter bookmarks locally to prevent stale data flickering during navigation
+  const trashedBookmarks = (bookmarks || []).filter(b => b && b.isTrashed);
 
   useEffect(() => {
-    fetchBookmarks({ isTrashed: true });
+    fetchBookmarks({ isTrashed: true }, { silent: true });
   }, [fetchBookmarks]);
 
   if (isLoading) {

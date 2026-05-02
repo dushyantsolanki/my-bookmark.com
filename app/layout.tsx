@@ -3,7 +3,7 @@ import { Poppins, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import "./globals.css";
-
+import { GooeyToaster } from "@/components/ui/goey-toaster"
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-sans",
@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   title: "MyBookmark - Save & Organize",
   description: "A beautiful, fast, and simple bookmark manager.",
 };
+
+
 
 export default function RootLayout({
   children,
@@ -36,7 +38,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-
+          <GooeyToaster />
           {children}
         </ThemeProvider>
       </body>

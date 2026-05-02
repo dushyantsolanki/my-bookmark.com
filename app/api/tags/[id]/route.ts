@@ -12,9 +12,14 @@ export async function PATCH(
     await dbConnect();
     const { id } = await params;
     const { name, color } = await req.json();
+    const userId = req.headers.get("x-user-id");
 
-    const tag = await Tag.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(id),
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const tag = await Tag.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(id), userId },
       { name, color },
       { new: true, runValidators: true }
     );
@@ -36,8 +41,16 @@ export async function DELETE(
   try {
     await dbConnect();
     const { id } = await params;
+    const userId = req.headers.get("x-user-id");
 
-    const tag = await Tag.findByIdAndDelete(new mongoose.Types.ObjectId(id));
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const tag = await Tag.findOneAndDelete({ 
+      _id: new mongoose.Types.ObjectId(id), 
+      userId 
+    });
 
     if (!tag) {
       return NextResponse.json({ error: "Tag not found" }, { status: 404 });

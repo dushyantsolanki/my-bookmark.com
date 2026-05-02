@@ -47,7 +47,7 @@ export function RegisterForm({
         const { accessToken, user } = response.data
 
         // Store access token in cookie
-        Cookies.set("accessToken", accessToken, { expires: 1/24 }) // 1 hour
+        Cookies.set("accessToken", accessToken)
         localStorage.setItem("user", JSON.stringify(user))
 
         router.push("/")
@@ -133,8 +133,8 @@ export function RegisterForm({
                 )}
               </Field>
               <Field className="pt-2">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={formik.isSubmitting}
                   className="h-11 text-base font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
