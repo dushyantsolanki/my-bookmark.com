@@ -91,7 +91,7 @@ export function TrashContent() {
   const trashedBookmarks = (bookmarks || []).filter(b => b && b.isTrashed);
 
   useEffect(() => {
-    fetchBookmarks({ isTrashed: true }, { silent: true });
+    fetchBookmarks({ isTrashed: true });
   }, [fetchBookmarks]);
 
   if (isLoading) {

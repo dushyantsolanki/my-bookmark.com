@@ -22,13 +22,14 @@ export function BookmarksContent() {
     fetchBookmarks,
     isLoading,
     collections,
-    tags
+    tags,
+    clearAllFilters
   } = useBookmarksStore();
 
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
 
   useEffect(() => {
-    fetchBookmarks({}, { silent: true });
+    fetchBookmarks({});
   }, [fetchBookmarks]);
 
   const filteredBookmarks = getFilteredBookmarks();
@@ -149,7 +150,7 @@ export function BookmarksContent() {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setFilterType("all");
+                      clearAllFilters();
                     }}
                   >
                     Clear filters

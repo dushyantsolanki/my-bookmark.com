@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { usePathname } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,6 +68,7 @@ export function BookmarksHeader({ title = "Bookmarks" }: BookmarksHeaderProps) {
     logout,
     fetchBookmarks
   } = useBookmarksStore();
+  const pathname = usePathname();
 
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
   const [localSearch, setLocalSearch] = React.useState("");
@@ -77,6 +79,11 @@ export function BookmarksHeader({ title = "Bookmarks" }: BookmarksHeaderProps) {
     setMounted(true);
     setLocalSearch(searchQuery);
   }, []);
+
+  // Sync with store if changed externally (e.g. Clear All)
+  React.useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
 
   // Debounce search query
   React.useEffect(() => {
@@ -95,6 +102,15 @@ export function BookmarksHeader({ title = "Bookmarks" }: BookmarksHeaderProps) {
   const currentSort = sortOptions.find((opt) => opt.value === sortBy);
   const currentFilter = filterOptions.find((opt) => opt.value === filterType);
 
+  const getDisplayTitle = () => {
+    if (pathname === "/") return "All Bookmarks";
+    if (pathname === "/favorites") return "Favorites";
+    if (pathname === "/archive") return "Archive";
+    if (pathname === "/trash") return "Trash";
+    if (pathname === "/profile") return "Profile Settings";
+    return title;
+  };
+
   if (!mounted) {
     return (
       <header className="w-full border-b">
@@ -102,7 +118,7 @@ export function BookmarksHeader({ title = "Bookmarks" }: BookmarksHeaderProps) {
           <div className="flex items-center gap-3">
             <SidebarTrigger />
             <Separator orientation="vertical" className="h-5" />
-            <h1 className="text-base font-semibold hidden sm:block">{title}</h1>
+            <h1 className="text-base font-semibold hidden sm:block">{getDisplayTitle()}</h1>
           </div>
           <div className="flex items-center gap-2">
             <div className="size-8 rounded-full bg-muted animate-pulse" />
@@ -118,7 +134,7 @@ export function BookmarksHeader({ title = "Bookmarks" }: BookmarksHeaderProps) {
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-5" />
-          <h1 className="text-base font-semibold hidden sm:block">{title}</h1>
+          <h1 className="text-base font-semibold hidden sm:block">{getDisplayTitle()}</h1>
         </div>
 
         <div className="flex items-center gap-2">

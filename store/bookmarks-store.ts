@@ -42,6 +42,8 @@ interface BookmarksState {
   collections: Collection[];
   tags: Tag[];
   isLoading: boolean;
+  isCollectionsLoading: boolean;
+  isTagsLoading: boolean;
   selectedCollection: string;
   selectedTags: string[];
   searchQuery: string;
@@ -76,6 +78,7 @@ interface BookmarksState {
   setFilterType: (filter: FilterType) => void;
   setUser: (user: any) => void;
   logout: () => void;
+  clearAllFilters: () => void;
 
   getFilteredBookmarks: () => Bookmark[];
 }
@@ -84,7 +87,9 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
   bookmarks: [],
   collections: [],
   tags: [],
-  isLoading: false,
+  isLoading: true,
+  isCollectionsLoading: true,
+  isTagsLoading: true,
   selectedCollection: "all",
   selectedTags: [],
   searchQuery: "",
@@ -170,30 +175,32 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
   },
 
   fetchCollections: async () => {
+    set({ isCollectionsLoading: true });
     try {
       const response = await api.get("/collections");
       if (Array.isArray(response.data)) {
-        set({ collections: response.data });
+        set({ collections: response.data, isCollectionsLoading: false });
       } else {
-        set({ collections: [] });
+        set({ collections: [], isCollectionsLoading: false });
       }
     } catch (error) {
       console.error("Failed to fetch collections", error);
-      set({ collections: [] });
+      set({ collections: [], isCollectionsLoading: false });
     }
   },
 
   fetchTags: async () => {
+    set({ isTagsLoading: true });
     try {
       const response = await api.get("/tags");
       if (Array.isArray(response.data)) {
-        set({ tags: response.data });
+        set({ tags: response.data, isTagsLoading: false });
       } else {
-        set({ tags: [] });
+        set({ tags: [], isTagsLoading: false });
       }
     } catch (error) {
       console.error("Failed to fetch tags", error);
-      set({ tags: [] });
+      set({ tags: [], isTagsLoading: false });
     }
   },
 
@@ -271,7 +278,7 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
 
   setSelectedCollection: (collectionId) => {
     set({ selectedCollection: collectionId, searchQuery: "", selectedTags: [] });
-    get().fetchBookmarks({ isTrashed: false, isArchived: false }, { silent: true });
+    get().fetchBookmarks({ isTrashed: false, isArchived: false });
   },
 
   toggleTag: (tagId) =>
@@ -316,6 +323,16 @@ export const useBookmarksStore = create<BookmarksState>((set, get) => ({
     });
 
     window.location.href = "/login";
+  },
+
+  clearAllFilters: () => {
+    set({
+      selectedTags: [],
+      filterType: "all",
+      searchQuery: "",
+      sortBy: "date-newest",
+    });
+    get().fetchBookmarks({}, { silent: true });
   },
 
   getFilteredBookmarks: () => {

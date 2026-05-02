@@ -148,13 +148,13 @@ export function ManageAllTagsModal({ isOpen, onClose }: ManageAllTagsModalProps)
                       )}
                     </div>
 
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                       {editingTagId === tag._id ? (
                         <>
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="size-8 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50"
+                            className="size-8 bg-emerald-500/10 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50"
                             onClick={() => handleSaveEdit(tag._id)}
                             disabled={loading === tag._id}
                           >
@@ -163,7 +163,7 @@ export function ManageAllTagsModal({ isOpen, onClose }: ManageAllTagsModalProps)
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="size-8 text-muted-foreground"
+                            className="size-8 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-600"
                             onClick={() => setEditingTagId(null)}
                           >
                             <X className="size-3.5" />

@@ -103,7 +103,7 @@ export function ArchiveContent() {
   const archivedBookmarks = (bookmarks || []).filter(b => b && b.isArchived && !b.isTrashed);
 
   useEffect(() => {
-    fetchBookmarks({ isArchived: true, isTrashed: false }, { silent: true });
+    fetchBookmarks({ isArchived: true, isTrashed: false });
   }, [fetchBookmarks]);
 
   if (isLoading) {

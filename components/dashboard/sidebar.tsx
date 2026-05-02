@@ -80,6 +80,8 @@ export function BookmarksSidebar({
     setSearchQuery,
     setFilterType,
     isLoading,
+    isCollectionsLoading,
+    isTagsLoading,
   } = useBookmarksStore();
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -164,7 +166,7 @@ export function BookmarksSidebar({
             {collectionsOpen && (
               <SidebarGroupContent>
                 <SidebarMenu className="mt-2">
-                  {isLoading ? (
+                  {isCollectionsLoading && collections.length === 0 ? (
                     Array.from({ length: 4 }).map((_, i) => (
                       <SidebarMenuItem key={i}>
                         <div className="flex items-center gap-3 px-3 py-2">
@@ -262,7 +264,7 @@ export function BookmarksSidebar({
             {tagsOpen && (
               <SidebarGroupContent>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {isLoading ? (
+                  {isTagsLoading && tags.length === 0 ? (
                     Array.from({ length: 6 }).map((_, i) => (
                       <Skeleton key={i} className="h-6 w-16 rounded-md" />
                     ))

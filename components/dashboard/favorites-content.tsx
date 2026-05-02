@@ -10,7 +10,7 @@ export function FavoritesContent() {
   const { fetchBookmarks, bookmarks, isLoading, viewMode } = useBookmarksStore();
 
   useEffect(() => {
-    fetchBookmarks({ isFavorite: true, isTrashed: false, isArchived: false }, { silent: true });
+    fetchBookmarks({ isFavorite: true, isTrashed: false, isArchived: false });
   }, [fetchBookmarks]);
 
   // Filter bookmarks locally to prevent stale data flickering during navigation
