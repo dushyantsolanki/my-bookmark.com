@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Collection from "@/lib/models/Collection";
+import { checkLimit } from "@/lib/subscription";
 
 export async function GET(req: Request) {
   try {
@@ -27,6 +28,12 @@ export async function POST(req: Request) {
 
     if (!name || !userId) {
       return NextResponse.json({ error: "Name and Authorization are required" }, { status: 400 });
+    }
+
+    // Check subscription limits
+    const limitCheck = await checkLimit(userId, "collections");
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ error: limitCheck.message }, { status: 403 });
     }
 
     const collection = await Collection.create({

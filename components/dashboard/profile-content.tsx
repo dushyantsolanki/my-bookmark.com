@@ -3,7 +3,7 @@
 import React from "react";
 import { useBookmarksStore } from "@/store/bookmarks-store";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,17 +19,102 @@ import {
   LogOut,
   Pencil,
   Tag,
-  FolderOpen
+  FolderOpen,
+  Check,
+  CheckCircle2,
+  Zap
 } from "lucide-react";
+import Script from "next/script";
 import { cn } from "@/lib/utils";
+
+const pricingPlans = [
+  {
+    name: "Free",
+    price: "₹0",
+    description: "Perfect for casual bookmarking",
+    features: [
+      "Up to 10 Bookmarks",
+      "Up to 3 Collections",
+      "Up to 5 Tags",
+      "Web Dashboard Access",
+    ],
+    cta: "Current Plan",
+    planId: null,
+  },
+  {
+    name: "Pro",
+    price: "₹199",
+    period: "/month",
+    description: "Unlimited power for serious collectors",
+    features: [
+      "Unlimited Bookmarks",
+      "Unlimited Collections",
+      "Unlimited Tags",
+      "Full Extension Access",
+      "Priority Email Support",
+    ],
+    cta: "Upgrade to Pro",
+    planId: process.env.NEXT_PUBLIC_RAZORPAY_PRO_PLAN_ID || "plan_xyz",
+  },
+];
 
 export function ProfileContent() {
   const { user, bookmarks, collections, tags, fetchBookmarks, logout } = useBookmarksStore();
   const [isEditing, setIsEditing] = React.useState(false);
+  const [loading, setLoading] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     fetchBookmarks({}, { silent: true });
   }, [fetchBookmarks]);
+
+  const handleSubscription = async (planId: string) => {
+    try {
+      setLoading(planId);
+
+      const response = await fetch("/api/razorpay/create-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId }),
+      });
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+
+      const options = {
+        key: data.key,
+        subscription_id: data.subscriptionId,
+        name: "MyBookmark Pro",
+        description: "Monthly Subscription",
+        handler: async function (response: any) {
+          const verifyRes = await fetch("/api/razorpay/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_subscription_id: response.razorpay_subscription_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.message) {
+            window.location.reload();
+          }
+        },
+        prefill: {
+          name: user?.name || "",
+          email: user?.email || "",
+        },
+        theme: { color: "#3b82f6" },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setLoading(null);
+    }
+  };
 
   const stats = [
     {
@@ -63,7 +148,8 @@ export function ProfileContent() {
   ];
 
   return (
-    <div className="flex-1 w-full overflow-auto bg-muted/30">
+    <div className="flex-1 w-full overflow-auto bg-muted/30 pb-12">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
         {/* Profile Header Card */}
         <div className="relative overflow-hidden rounded-3xl border bg-card shadow-sm">
@@ -81,7 +167,15 @@ export function ProfileContent() {
                   </button>
                 </div>
                 <div className="text-center sm:text-left pb-1">
-                  <h1 className="text-2xl font-bold">{user?.name || "User Name"}</h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold">{user?.name || "User Name"}</h1>
+                    {user?.subscription === "pro" && (
+                      <div className="flex items-center gap-1 bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border border-amber-500/20">
+                        <Zap className="size-2.5 fill-amber-500" />
+                        PRO
+                      </div>
+                    )}
+                  </div>
                   <p className="text-muted-foreground flex items-center justify-center sm:justify-start gap-1.5 text-sm">
                     <Mail className="size-3.5" />
                     {user?.email || "user@example.com"}
@@ -212,6 +306,62 @@ export function ProfileContent() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Subscription Section */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2">
+            <Zap className="size-5 text-primary" />
+            <h2 className="text-xl font-bold">Subscription Plans</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {pricingPlans.map((plan) => {
+              const isCurrent = (user?.subscription || "free") === plan.name.toLowerCase();
+              return (
+                <Card
+                  key={plan.name}
+                  className={cn(
+                    "relative overflow-hidden transition-all duration-300",
+                    isCurrent ? "ring-2 ring-primary bg-primary/5 shadow-md" : "hover:shadow-md"
+                  )}
+                >
+                  {isCurrent && (
+                    <div className="absolute top-0 right-0 p-2">
+                      <CheckCircle2 className="size-5 text-primary fill-background" />
+                    </div>
+                  )}
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-baseline gap-2">
+                      {plan.name}
+                      <span className="text-2xl font-black">{plan.price}</span>
+                      {plan.period && <span className="text-xs font-medium text-muted-foreground">{plan.period}</span>}
+                    </CardTitle>
+                    <CardDescription className="text-xs">{plan.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-6">
+                    <ul className="space-y-2">
+                      {plan.features.map((feature) => (
+                        <li key={feature} className="flex items-center gap-2 text-sm">
+                          <Check className="size-3.5 text-primary shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      className="w-full"
+                      variant={isCurrent ? "outline" : "default"}
+                      disabled={isCurrent || loading === plan.planId || !plan.planId}
+                      onClick={() => plan.planId && handleSubscription(plan.planId)}
+                    >
+                      {loading === plan.planId ? "Processing..." : isCurrent ? "Active Plan" : plan.cta}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

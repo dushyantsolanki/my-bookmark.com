@@ -45,6 +45,7 @@
     "nextjs-toploader": "^3.9.17",
     "open-graph-scraper": "^6.11.0",
     "radix-ui": "^1.4.3",
+    "razorpay": "^2.9.6",
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "tailwind-merge": "^3.4.0",

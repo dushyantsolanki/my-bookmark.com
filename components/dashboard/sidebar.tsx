@@ -37,7 +37,7 @@ import {
   Plus,
   Settings,
   X,
-  LayoutGridIcon,
+  LayoutGridIcon
 } from "lucide-react";
 import { ManageCollectionModal } from "./manage-collection-modal";
 import { ManageAllTagsModal } from "./manage-all-tags-modal";

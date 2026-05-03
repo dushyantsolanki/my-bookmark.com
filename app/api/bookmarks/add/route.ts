@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Bookmark from "@/lib/models/Bookmark";
 import { processBookmark } from "@/lib/scraper";
+import { checkLimit } from "@/lib/subscription";
 
 export async function POST(req: Request) {
   try {
@@ -11,6 +12,12 @@ export async function POST(req: Request) {
 
     if (!url || !userId) {
       return NextResponse.json({ error: "Missing required fields or unauthorized" }, { status: 400 });
+    }
+
+    // Check subscription limits
+    const limitCheck = await checkLimit(userId, "bookmarks");
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ error: limitCheck.message }, { status: 403 });
     }
 
     // 1. Create the initial bookmark record
